@@ -6,6 +6,39 @@
 <title>Group Tours | Bilal Travel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBiTumzMyZQbAY5MxZnQHlxMUcs9ZDdzyw",
+    authDomain: "bilal-tyravel.firebaseapp.com",
+    projectId: "bilal-tyravel",
+    storageBucket: "bilal-tyravel.firebasestorage.app",
+    messagingSenderId: "900415962060",
+    appId: "1:900415962060:web:b356899e3f745ad7bebb69"
+  };
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+
+  // Exposed globally so the plain-script booking logic below can call it
+  window.__saveBookingToFirestore = async function(bookingData){
+    try {
+      await addDoc(collection(db, "bookings"), {
+        ...bookingData,
+        status: "Pending Payment",
+        createdAt: serverTimestamp()
+      });
+    } catch (err) {
+      console.error("Could not save booking:", err);
+      // We don't block the WhatsApp message if this fails — WhatsApp is the
+      // fallback record either way.
+    }
+  };
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
   :root{
@@ -75,6 +108,59 @@
   .status-line{padding:14px 20px;font-size:0.8rem;color:var(--ink-600);border-bottom:1px solid var(--line);background:var(--stone-100);}
 
   footer{background:var(--navy-950);color:rgba(244,240,230,0.5);padding:30px 0;font-size:0.82rem;text-align:center;}
+
+  /* ---- Booking Modal ---- */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(10,27,46,0.55);
+    z-index:100; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{
+    background:#fff; border-radius:14px; width:100%; max-width:820px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.25);
+  }
+  .modal-head{
+    background:var(--navy-950); color:var(--stone-100);
+    padding:20px 26px; border-radius:14px 14px 0 0;
+    display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
+  }
+  .modal-head h2{font-size:1.3rem; font-family:'Inter',sans-serif; font-weight:700;}
+  .modal-head .meta{font-size:0.82rem; color:rgba(244,240,230,0.7); margin-top:6px;}
+  .modal-head .meta b{color:var(--gold-300);}
+  .modal-close{background:none; border:none; color:var(--stone-100); font-size:1.4rem; cursor:pointer; line-height:1;}
+  .modal-body{padding:26px;}
+  .field-row{margin-bottom:20px;}
+  .field-row label{display:block; font-size:0.82rem; font-weight:600; color:var(--ink-600); margin-bottom:6px;}
+  .field-row input{
+    width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:6px; font-size:0.9rem; font-family:'Inter',sans-serif;
+  }
+  .field-row input:focus{outline:none; border-color:var(--gold-500);}
+  .pax-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px;}
+  @media(max-width:600px){.pax-grid{grid-template-columns:repeat(2,1fr);}}
+  .pax-box{background:var(--stone-100); border-radius:8px; padding:14px;}
+  .pax-box label{font-size:0.78rem; font-weight:600; color:var(--ink-600); display:block; margin-bottom:6px;}
+  .pax-box input{width:100%; border:1px solid var(--line); border-radius:6px; padding:8px; text-align:center; font-weight:700;}
+  .price-summary{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px;
+  }
+  @media(max-width:600px){.price-summary{grid-template-columns:1fr;}}
+  .summary-card{border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  .summary-card .head{background:var(--navy-900); color:var(--stone-100); padding:10px 14px; font-size:0.82rem; font-weight:700;}
+  .summary-card .row{display:flex; justify-content:space-between; padding:8px 14px; font-size:0.85rem; border-top:1px solid var(--line);}
+  .summary-card .row.total{font-weight:700; color:var(--gold-600); font-family:'Cormorant Garamond',serif; font-size:1.1rem;}
+  #pax-table{width:100%; border-collapse:collapse; margin-bottom:24px;}
+  #pax-table th{background:var(--stone-100); padding:9px 8px; font-size:0.72rem; text-transform:uppercase; text-align:left; color:var(--ink-600);}
+  #pax-table td{padding:6px 6px; border-bottom:1px solid var(--line);}
+  #pax-table input, #pax-table select{width:100%; padding:7px 8px; border:1px solid var(--line); border-radius:5px; font-size:0.82rem;}
+  .pax-type-label{font-weight:700; font-size:0.8rem; color:var(--teal-900); white-space:nowrap;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:12px;}
+  .btn-cancel{padding:11px 22px; border-radius:6px; border:1px solid var(--line); background:#fff; font-weight:600; font-size:0.88rem; cursor:pointer; color:var(--ink-600);}
+  .btn-confirm{
+    padding:11px 26px; border-radius:6px; border:none; cursor:pointer;
+    background:linear-gradient(135deg,var(--gold-300),var(--gold-600)); color:var(--navy-950);
+    font-weight:700; font-size:0.9rem; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-confirm:hover{filter:brightness(1.06);}
 </style>
 </head>
 <body>
@@ -138,6 +224,78 @@
 </div>
 
 <footer>© 2026 Bilal Travel · WhatsApp 0301-8898848 / 0303-8843469</footer>
+
+<!-- ==================== BOOKING MODAL ==================== -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <h2 id="modal-title">Book Seats</h2>
+        <div class="meta" id="modal-meta"></div>
+      </div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-form-body">
+      <div class="field-row">
+        <label>Contact Person Name</label>
+        <input type="text" id="contact-name" placeholder="Full name of the person we should contact">
+      </div>
+
+      <div class="field-row">
+        <label>Contact Phone (WhatsApp)</label>
+        <input type="text" id="contact-phone" placeholder="03XXXXXXXXX">
+      </div>
+
+      <div class="pax-grid">
+        <div class="pax-box"><label>Adults</label><input type="number" id="pax-adults" min="0" value="1"></div>
+        <div class="pax-box"><label>Children</label><input type="number" id="pax-children" min="0" value="0"></div>
+        <div class="pax-box"><label>Infants</label><input type="number" id="pax-infants" min="0" value="0"></div>
+        <div class="pax-box"><label>Total</label><input type="text" id="pax-total" value="1" disabled></div>
+      </div>
+
+      <div class="price-summary">
+        <div class="summary-card">
+          <div class="head">Price / Seat</div>
+          <div class="row"><span>Adult</span><span id="price-adult-display">—</span></div>
+          <div class="row"><span>Child</span><span id="price-child-display">Price on call</span></div>
+          <div class="row"><span>Infant</span><span id="price-infant-display">Price on call</span></div>
+        </div>
+        <div class="summary-card">
+          <div class="head">Total Price</div>
+          <div class="row"><span>Adults</span><span id="total-adult">—</span></div>
+          <div class="row"><span>Children</span><span id="total-child">—</span></div>
+          <div class="row"><span>Infants</span><span id="total-infant">—</span></div>
+          <div class="row total"><span>Total</span><span id="total-grand">—</span></div>
+        </div>
+      </div>
+
+      <table id="pax-table">
+        <thead>
+          <tr><th style="width:60px;">#</th><th>Title</th><th>Given Name</th><th>Sur Name</th><th>Passport#</th><th>Date of Birth</th><th>Passport Expiry</th></tr>
+        </thead>
+        <tbody id="pax-rows"></tbody>
+      </table>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" id="modal-cancel">Cancel</button>
+        <button class="btn-confirm" id="modal-book">
+          Submit Booking
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-body" id="modal-success-body" style="display:none; text-align:center; padding:50px 26px;">
+      <div style="width:64px; height:64px; border-radius:50%; background:#1E9E5A1a; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1E9E5A" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg>
+      </div>
+      <h2 style="font-family:'Inter',sans-serif; font-size:1.3rem; margin-bottom:10px;">Booking submitted!</h2>
+      <p style="color:var(--ink-600); font-size:0.92rem; max-width:380px; margin:0 auto 26px;">
+        We've received your request. Our team will check it and confirm your seats shortly — you'll be contacted on the phone number you provided.
+      </p>
+      <button class="btn-confirm" id="modal-success-close">Done</button>
+    </div>
+  </div>
+</div>
 
 <script>
   /* =========================================================
@@ -214,7 +372,7 @@
           <td>${f.meal || ''}</td>
           <td><span class="seats-badge">${f.seats || '—'}</span></td>
           <td><div class="fare">${f.fare || ''}</div><div class="ref">${f.ref ? 'Ref# ' + f.ref : ''}</div></td>
-          <td><a class="book-btn" href="${waLink(f)}" target="_blank">Book Now</a></td>
+          <td><button class="book-btn" onclick="openBookingModal(${allFlights.indexOf(f)})">Book Now</button></td>
         </tr>
       `;
     });
@@ -271,6 +429,163 @@
   }
 
   loadFromSheet();
+
+  /* ==================== BOOKING MODAL LOGIC ==================== */
+  let currentFlight = null;
+
+  function parseFare(fareStr){
+    if (!fareStr) return null;
+    const digits = String(fareStr).replace(/[^0-9]/g, '');
+    return digits ? parseInt(digits, 10) : null;
+  }
+
+  window.openBookingModal = function(index){
+    currentFlight = allFlights[index];
+    if (!currentFlight) return;
+
+    document.getElementById('modal-title').textContent =
+      `Book Seats | ${currentFlight.airline || ''} - ${currentFlight.sector || ''}`;
+    document.getElementById('modal-meta').innerHTML =
+      `Available Seats: <b>${currentFlight.seats || '—'}</b> &nbsp;|&nbsp; Date: <b>${currentFlight.date || ''}</b> &nbsp;|&nbsp; Flight: <b>${currentFlight.flight_no || ''}</b>`;
+
+    document.getElementById('contact-name').value = '';
+    document.getElementById('contact-phone').value = '';
+    document.getElementById('pax-adults').value = 1;
+    document.getElementById('pax-children').value = 0;
+    document.getElementById('pax-infants').value = 0;
+    document.getElementById('modal-form-body').style.display = 'block';
+    document.getElementById('modal-success-body').style.display = 'none';
+
+    const adultFare = parseFare(currentFlight.fare);
+    const childFare = parseFare(currentFlight.child_fare);
+    const infantFare = parseFare(currentFlight.infant_fare);
+
+    document.getElementById('price-adult-display').textContent = adultFare ? adultFare.toLocaleString() : (currentFlight.fare || '—');
+    document.getElementById('price-child-display').textContent = childFare ? childFare.toLocaleString() : 'Price on call';
+    document.getElementById('price-infant-display').textContent = infantFare ? infantFare.toLocaleString() : 'Price on call';
+
+    updatePaxRows();
+    updateTotals();
+    document.getElementById('modal-overlay').classList.add('open');
+  };
+
+  function closeModal(){
+    document.getElementById('modal-overlay').classList.remove('open');
+    currentFlight = null;
+  }
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-cancel').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'modal-overlay') closeModal();
+  });
+
+  function paxCounts(){
+    const adults = Math.max(0, parseInt(document.getElementById('pax-adults').value || 0));
+    const children = Math.max(0, parseInt(document.getElementById('pax-children').value || 0));
+    const infants = Math.max(0, parseInt(document.getElementById('pax-infants').value || 0));
+    return { adults, children, infants };
+  }
+
+  function updatePaxRows(){
+    const { adults, children, infants } = paxCounts();
+    document.getElementById('pax-total').value = adults + children + infants;
+
+    const rows = [];
+    let n = 1;
+    for (let i = 0; i < adults; i++, n++) rows.push(paxRow(n, 'Adult'));
+    for (let i = 0; i < children; i++, n++) rows.push(paxRow(n, 'Child'));
+    for (let i = 0; i < infants; i++, n++) rows.push(paxRow(n, 'Infant'));
+    document.getElementById('pax-rows').innerHTML = rows.join('');
+  }
+
+  function paxRow(n, type){
+    return `
+      <tr>
+        <td class="pax-type-label">${type} ${n}</td>
+        <td><select class="px-title"><option>Mr</option><option>Mrs</option><option>Ms</option>${type!=='Adult'?'<option selected>Child</option>':''}</select></td>
+        <td><input class="px-given" placeholder="Given name"></td>
+        <td><input class="px-sur" placeholder="Sur name"></td>
+        <td><input class="px-passport" placeholder="Passport #"></td>
+        <td><input class="px-dob" placeholder="DD-MM-YYYY"></td>
+        <td><input class="px-expiry" placeholder="DD-MM-YYYY"></td>
+      </tr>
+    `;
+  }
+
+  function updateTotals(){
+    const { adults, children, infants } = paxCounts();
+    const adultFare = parseFare(currentFlight?.fare) || 0;
+    const childFare = parseFare(currentFlight?.child_fare);
+    const infantFare = parseFare(currentFlight?.infant_fare);
+
+    const adultTotal = adults * adultFare;
+    const childTotal = childFare ? children * childFare : null;
+    const infantTotal = infantFare ? infants * infantFare : null;
+
+    document.getElementById('total-adult').textContent = adultTotal ? adultTotal.toLocaleString() : '—';
+    document.getElementById('total-child').textContent = children === 0 ? '—' : (childTotal !== null ? childTotal.toLocaleString() : 'Price on call');
+    document.getElementById('total-infant').textContent = infants === 0 ? '—' : (infantTotal !== null ? infantTotal.toLocaleString() : 'Price on call');
+
+    const grand = adultTotal + (childTotal || 0) + (infantTotal || 0);
+    let grandLabel = 'PKR ' + grand.toLocaleString();
+    if ((children > 0 && childTotal === null) || (infants > 0 && infantTotal === null)) {
+      grandLabel += ' + (child/infant on call)';
+    }
+    document.getElementById('total-grand').textContent = grandLabel;
+  }
+
+  ['pax-adults','pax-children','pax-infants'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => { updatePaxRows(); updateTotals(); });
+  });
+
+  document.getElementById('modal-book').addEventListener('click', async () => {
+    if (!currentFlight) return;
+    const contactName = document.getElementById('contact-name').value.trim();
+    const contactPhone = document.getElementById('contact-phone').value.trim();
+    const { adults, children, infants } = paxCounts();
+
+    if (!contactName) { alert('Please enter the contact person name.'); return; }
+    if (!contactPhone) { alert('Please enter a contact phone number.'); return; }
+    if (adults + children + infants === 0) { alert('Please add at least one passenger.'); return; }
+
+    const paxRowsEls = document.querySelectorAll('#pax-rows tr');
+    const passengerDetails = [];
+    paxRowsEls.forEach((row) => {
+      passengerDetails.push({
+        title: row.querySelector('.px-title').value,
+        givenName: row.querySelector('.px-given').value.trim(),
+        surName: row.querySelector('.px-sur').value.trim(),
+        passport: row.querySelector('.px-passport').value.trim(),
+      });
+    });
+
+    const grandTotal = document.getElementById('total-grand').textContent;
+    const btn = document.getElementById('modal-book');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+
+    if (window.__saveBookingToFirestore) {
+      await window.__saveBookingToFirestore({
+        contactName,
+        contactPhone,
+        airline: currentFlight.airline || '',
+        sector: currentFlight.sector || '',
+        date: currentFlight.date || '',
+        flightNo: currentFlight.flight_no || '',
+        adults, children, infants,
+        passengers: passengerDetails,
+        total: grandTotal,
+        ref: currentFlight.ref || '',
+      });
+    }
+
+    btn.disabled = false; btn.textContent = 'Submit Booking';
+
+    // Show the success screen instead of the form
+    document.getElementById('modal-form-body').style.display = 'none';
+    document.getElementById('modal-success-body').style.display = 'block';
+  });
+
+  document.getElementById('modal-success-close').addEventListener('click', closeModal);
 </script>
 
 </body>
