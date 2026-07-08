@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Dashboard | Bilal Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#0A1B2E; --navy-900:#0F2647;
+    --gold-500:#D4A017; --gold-300:#F0C64E;
+    --stone-100:#F4F0E6; --stone-050:#FBF9F4;
+    --ink-900:#181712; --ink-600:#4E4B42; --line:rgba(24,23,18,0.1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--stone-050);color:var(--ink-900);min-height:100vh;}
+  h1,h2{font-family:'Cormorant Garamond',serif;font-weight:700;}
+  a{color:inherit;text-decoration:none;}
+  header{background:var(--navy-950);color:var(--stone-100);}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 28px;}
+  .nav{display:flex;justify-content:space-between;align-items:center;height:74px;}
+  .logo{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.3rem;}
+  .btn-logout{background:transparent;border:1px solid rgba(244,240,230,0.3);color:var(--stone-100);padding:9px 18px;border-radius:6px;font-size:0.85rem;cursor:pointer;}
+  .btn-logout:hover{border-color:var(--gold-300);color:var(--gold-300);}
+  main{padding:60px 0;}
+  .welcome-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:36px;margin-bottom:24px;}
+  .welcome-card h1{font-size:1.9rem;margin-bottom:6px;}
+  .welcome-card p{color:var(--ink-600);font-size:0.95rem;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  @media(max-width:800px){.grid{grid-template-columns:1fr;}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:26px;}
+  .card h3{font-family:'Inter',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:8px;}
+  .card p{font-size:0.88rem;color:var(--ink-600);}
+  .loading{padding:100px 0;text-align:center;color:var(--ink-600);}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">Checking your session…</div>
+
+<div id="app" style="display:none;">
+  <header>
+    <div class="wrap nav">
+      <div class="logo">Bilal Travel — Agent Panel</div>
+      <button class="btn-logout" id="logout-btn">Log out</button>
+    </div>
+  </header>
+  <main>
+    <div class="wrap">
+      <div class="welcome-card">
+        <h1>Welcome, <span id="agent-name">Agent</span></h1>
+        <p id="agent-email"></p>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>Group Tours</h3>
+          <p>View live fares and flight availability across all routes.</p>
+          <br><a href="group-tours.html" style="color:var(--gold-500);font-weight:600;font-size:0.85rem;">View flights →</a>
+        </div>
+        <div class="card">
+          <h3>Your Bookings</h3>
+          <p>Booking history and status tracking will appear here as you confirm groups on WhatsApp.</p>
+        </div>
+        <div class="card">
+          <h3>Support</h3>
+          <p>Message the booking desk directly for anything urgent.</p>
+          <br><a href="https://wa.me/923018898848" target="_blank" style="color:var(--gold-500);font-weight:600;font-size:0.85rem;">WhatsApp M. Bilal →</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBiTumzMyZQbAY5MxZnQHlxMUcs9ZDdzyw",
+    authDomain: "bilal-tyravel.firebaseapp.com",
+    projectId: "bilal-tyravel",
+    storageBucket: "bilal-tyravel.firebasestorage.app",
+    messagingSenderId: "900415962060",
+    appId: "1:900415962060:web:b356899e3f745ad7bebb69"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // Not logged in — send back to login page
+      window.location.href = 'agent-login.html';
+      return;
+    }
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    const displayName = user.displayName || 'Agent';
+    document.getElementById('agent-name').textContent = displayName.split('|')[0].trim();
+    document.getElementById('agent-email').textContent = user.email;
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = 'agent-login.html';
+  });
+</script>
+
+</body>
+</html>

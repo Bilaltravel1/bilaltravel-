@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Group Tours | Bilal Travel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root{
+    --navy-950:#0A1B2E; --navy-900:#0F2647; --teal-900:#0B3D3A;
+    --gold-600:#B8891F; --gold-500:#D4A017; --gold-300:#F0C64E;
+    --stone-100:#F4F0E6; --stone-050:#FBF9F4; --ink-900:#181712; --ink-600:#4E4B42;
+    --line:rgba(24,23,18,0.1); --line-dark:rgba(244,240,230,0.13);
+    --green:#1E9E5A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;color:var(--ink-900);background:var(--stone-050);}
+  h1,h2{font-family:'Cormorant Garamond',serif;font-weight:700;}
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:1300px;margin:0 auto;padding:0 28px;}
+
+  header{background:var(--navy-950);color:var(--stone-100);border-bottom:1px solid var(--line-dark);}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:76px;}
+  .logo{display:flex;align-items:center;gap:12px;}
+  .logo-mark{width:38px;height:38px;}
+  .logo .name{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.3rem;}
+  .back{font-size:0.85rem;color:rgba(244,240,230,0.65);}
+  .back:hover{color:var(--gold-300);}
+
+  .page-head{background:var(--navy-900);color:var(--stone-100);padding:38px 0;}
+  .page-head h1{font-size:2.1rem;}
+  .page-head p{color:rgba(244,240,230,0.68);margin-top:8px;font-size:0.95rem;}
+
+  .tabs-row{background:var(--stone-050);padding:22px 0;border-bottom:1px solid var(--line);}
+  .tabs{display:flex;flex-wrap:wrap;gap:10px;}
+  .tab-btn{
+    padding:10px 20px;border-radius:20px;font-weight:600;font-size:0.85rem;
+    border:1px solid var(--line); background:#fff; color:var(--ink-600); cursor:pointer;
+    transition:all .15s ease;
+  }
+  .tab-btn:hover{border-color:var(--gold-500);}
+  .tab-btn.active{background:var(--navy-900);color:var(--stone-100);border-color:var(--navy-900);}
+
+  .layout{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:32px 0 80px;align-items:start;}
+  @media(max-width:880px){.layout{grid-template-columns:1fr;}}
+
+  .filters{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;position:sticky;top:20px;}
+  .filters h3{font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .filter-group{margin-bottom:6px;max-height:260px;overflow-y:auto;}
+  .filter-item{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:0.87rem;color:var(--ink-600);}
+  .filter-item input{accent-color:var(--gold-500);}
+  .filter-clear{margin-top:14px;font-size:0.8rem;color:var(--gold-600);font-weight:600;cursor:pointer;}
+
+  .table-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:var(--navy-900);color:var(--stone-100);}
+  thead th{padding:16px 14px;font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;text-align:left;white-space:nowrap;}
+  tbody tr{border-bottom:1px solid var(--line);}
+  tbody tr:nth-child(even){background:#FAF8F2;}
+  tbody tr:hover{background:#FCF3DA;}
+  tbody td{padding:16px 14px;font-size:0.88rem;vertical-align:middle;white-space:nowrap;}
+  .airline-header td{background:var(--stone-100);font-weight:700;color:var(--teal-900);padding:12px 14px;font-size:0.95rem;}
+  .fare{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--gold-600);}
+  .ref{font-size:0.7rem;color:#999;}
+  .seats-badge{background:rgba(30,158,90,0.1);color:var(--green);font-weight:700;padding:3px 10px;border-radius:20px;font-size:0.8rem;}
+  .book-btn{
+    background:linear-gradient(135deg,var(--gold-300),var(--gold-600));color:var(--navy-950);
+    padding:9px 18px;border-radius:6px;font-weight:700;font-size:0.82rem;display:inline-block;
+  }
+  .book-btn:hover{filter:brightness(1.06);}
+  .empty-state{padding:60px 20px;text-align:center;color:var(--ink-600);}
+  .status-line{padding:14px 20px;font-size:0.8rem;color:var(--ink-600);border-bottom:1px solid var(--line);background:var(--stone-100);}
+
+  footer{background:var(--navy-950);color:rgba(244,240,230,0.5);padding:30px 0;font-size:0.82rem;text-align:center;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="index.html" class="logo">
+      <svg class="logo-mark" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="g1" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse"><stop stop-color="#F0C64E"/><stop offset="1" stop-color="#B8891F"/></linearGradient></defs>
+        <circle cx="24" cy="24" r="23" stroke="url(#g1)" stroke-width="1.5"/>
+        <path d="M13 27 L24 14 L35 27 L28 27 L28 34 L20 34 L20 27 Z" fill="url(#g1)"/>
+      </svg>
+      <div class="name">Bilal Travel</div>
+    </a>
+    <a href="index.html" class="back">← Back to website</a>
+  </div>
+</header>
+
+<div class="page-head">
+  <div class="wrap">
+    <h1>Group Tours &amp; Flights</h1>
+    <p>Live fares, updated daily by our team. Tap "Book Now" to confirm on WhatsApp.</p>
+  </div>
+</div>
+
+<div class="tabs-row">
+  <div class="wrap tabs" id="tabs">
+    <button class="tab-btn active" data-type="ALL">All Groups</button>
+    <button class="tab-btn" data-type="UAE">UAE Groups</button>
+    <button class="tab-btn" data-type="UMRAH">Umrah Groups</button>
+    <button class="tab-btn" data-type="KSA">KSA Groups</button>
+    <button class="tab-btn" data-type="MUSCAT">Muscat Groups</button>
+    <button class="tab-btn" data-type="UK">UK Groups</button>
+    <button class="tab-btn" data-type="QATAR">Qatar Groups</button>
+    <button class="tab-btn" data-type="BAHRAIN">Bahrain Groups</button>
+  </div>
+</div>
+
+<div class="wrap layout">
+  <aside class="filters">
+    <h3>✈ Filter by Airline</h3>
+    <div class="filter-group" id="airline-filters">
+      <!-- populated by JS from sheet data -->
+    </div>
+    <div class="filter-clear" id="clear-filters">Clear filters</div>
+  </aside>
+
+  <div class="table-wrap">
+    <div class="status-line" id="status-line">Loading latest flights…</div>
+    <table id="flight-table">
+      <thead>
+        <tr>
+          <th>Date</th><th>Sector</th><th>Flight</th><th>Time</th>
+          <th>Bag</th><th>Meal</th><th>Seats</th><th>Fare</th><th>Book Now</th>
+        </tr>
+      </thead>
+      <tbody id="flight-body"></tbody>
+    </table>
+    <div class="empty-state" id="empty-state" style="display:none;">No flights match your filters right now — try clearing filters or check another group.</div>
+  </div>
+</div>
+
+<footer>© 2026 Bilal Travel · WhatsApp 0301-8898848 / 0303-8843469</footer>
+
+<script>
+  /* =========================================================
+     DATA SOURCE — paste your published Google Sheet CSV link here.
+     File → Share → Publish to web → CSV → copy the link below.
+
+     Your sheet needs these EXACT column headers in row 1:
+     group_type | airline | date | sector | flight_no | time | bag | meal | seats | fare | ref
+
+     group_type must be one of: UAE, UMRAH, KSA, MUSCAT, UK, QATAR, BAHRAIN
+  ========================================================= */
+  const SHEET_CSV_URL = "PASTE_YOUR_PUBLISHED_GOOGLE_SHEET_CSV_LINK_HERE";
+
+  let allFlights = [];
+  let activeType = "ALL";
+  let activeAirlines = new Set();
+
+  // Pick tab from ?type=KSA in the URL, if present
+  const params = new URLSearchParams(window.location.search);
+  const urlType = params.get('type');
+  if (urlType) activeType = urlType.toUpperCase();
+
+  function waLink(flight) {
+    const msg = `Assalam o Alaikum, I want to book:\n${flight.sector} — ${flight.date} — ${flight.flight_no}\nFare: ${flight.fare}\nRef: ${flight.ref || ''}`;
+    return `https://wa.me/923018898848?text=${encodeURIComponent(msg)}`;
+  }
+
+  function renderAirlineFilters(flights) {
+    const airlines = [...new Set(flights.map(f => f.airline).filter(Boolean))].sort();
+    const box = document.getElementById('airline-filters');
+    box.innerHTML = airlines.map(a => `
+      <label class="filter-item">
+        <input type="checkbox" value="${a}" class="airline-cb"> ${a}
+      </label>
+    `).join('');
+    box.querySelectorAll('.airline-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        if (cb.checked) activeAirlines.add(cb.value); else activeAirlines.delete(cb.value);
+        render();
+      });
+    });
+  }
+
+  function render() {
+    let rows = allFlights;
+    if (activeType !== "ALL") rows = rows.filter(f => (f.group_type || '').toUpperCase() === activeType);
+    if (activeAirlines.size > 0) rows = rows.filter(f => activeAirlines.has(f.airline));
+
+    const tbody = document.getElementById('flight-body');
+    const empty = document.getElementById('empty-state');
+
+    if (rows.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    // Group rows by airline for the header bands, like the reference layout
+    let html = '';
+    let lastAirline = null;
+    rows.forEach(f => {
+      if (f.airline !== lastAirline) {
+        html += `<tr class="airline-header"><td colspan="9">${f.airline || 'Airline'}</td></tr>`;
+        lastAirline = f.airline;
+      }
+      html += `
+        <tr>
+          <td>${f.date || ''}</td>
+          <td>${f.sector || ''}</td>
+          <td>${f.flight_no || ''}</td>
+          <td>${f.time || ''}</td>
+          <td>${f.bag || ''}</td>
+          <td>${f.meal || ''}</td>
+          <td><span class="seats-badge">${f.seats || '—'}</span></td>
+          <td><div class="fare">${f.fare || ''}</div><div class="ref">${f.ref ? 'Ref# ' + f.ref : ''}</div></td>
+          <td><a class="book-btn" href="${waLink(f)}" target="_blank">Book Now</a></td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = html;
+  }
+
+  document.getElementById('tabs').addEventListener('click', (e) => {
+    if (!e.target.classList.contains('tab-btn')) return;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    activeType = e.target.dataset.type;
+    render();
+  });
+
+  document.getElementById('clear-filters').addEventListener('click', () => {
+    activeAirlines.clear();
+    document.querySelectorAll('.airline-cb').forEach(cb => cb.checked = false);
+    render();
+  });
+
+  function loadFromSheet() {
+    const status = document.getElementById('status-line');
+    if (!SHEET_CSV_URL || SHEET_CSV_URL.includes('PASTE_YOUR')) {
+      status.textContent = 'No Google Sheet connected yet — showing sample data. Paste your published CSV link in the script to go live.';
+      loadSampleData();
+      return;
+    }
+    Papa.parse(SHEET_CSV_URL, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        allFlights = results.data;
+        status.textContent = 'Live — last loaded ' + new Date().toLocaleString();
+        renderAirlineFilters(allFlights);
+        render();
+      },
+      error: (err) => {
+        status.textContent = 'Could not load sheet (' + err.message + ') — showing sample data.';
+        loadSampleData();
+      }
+    });
+  }
+
+  function loadSampleData() {
+    allFlights = [
+      {group_type:"UAE", airline:"AirArabia", date:"09-07-2026", sector:"SKT-SHJ", flight_no:"G9553", time:"03:45 - 06:00", bag:"20+07 KG", meal:"NO", seats:"12", fare:"PKR 76,000", ref:"10980"},
+      {group_type:"UAE", airline:"AirArabia", date:"10-07-2026", sector:"SKT-SHJ", flight_no:"G9553", time:"03:45 - 06:00", bag:"20+07 KG", meal:"NO", seats:"8", fare:"PKR 84,000", ref:"10981"},
+      {group_type:"KSA", airline:"Saudi Airline", date:"11-07-2026", sector:"ISB-JED", flight_no:"SV732", time:"14:20 - 18:10", bag:"23+07 KG", meal:"YES", seats:"5", fare:"PKR 145,000", ref:"10982"},
+      {group_type:"UMRAH", airline:"Salam Air", date:"12-07-2026", sector:"KHI-MCT-MED", flight_no:"OV752", time:"05:10 - 11:40", bag:"20+07 KG", meal:"YES", seats:"20", fare:"PKR 165,000", ref:"10983"},
+    ];
+    renderAirlineFilters(allFlights);
+    render();
+  }
+
+  loadFromSheet();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Login | Bilal Travel &amp; Tours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-950:#0A1B2E;
+    --teal-900:#0F2647;
+    --indigo-900:#0F2647;
+    --gold-500:#D4A017;
+    --gold-300:#F0C64E;
+    --stone-100:#F4F0E6;
+    --stone-050:#FBF9F4;
+    --ink-900:#181712;
+    --ink-600:#4E4B42;
+    --line-dark:rgba(244,240,230,0.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:radial-gradient(120% 140% at 50% -10%, var(--indigo-900) 0%, var(--teal-950) 62%);
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    color:var(--stone-100);
+  }
+  h1,.display{font-family:'Cormorant Garamond',serif; font-weight:600;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit; text-decoration:none;}
+
+  header{padding:26px 32px;}
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{width:30px; height:36px; background:linear-gradient(180deg,var(--gold-300),var(--gold-500)); border-radius:15px 15px 3px 3px;}
+  .brand-name{font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:700;}
+  .back-link{font-size:0.82rem; color:rgba(243,239,230,0.6);}
+  .back-link:hover{color:var(--gold-300);}
+  .header-row{max-width:1180px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; width:100%;}
+
+  main{flex:1; display:flex; align-items:center; justify-content:center; padding:40px 20px 80px;}
+
+  .panel-wrap{
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+    max-width:960px; width:100%;
+    background:rgba(243,239,230,0.03);
+    border:1px solid var(--line-dark);
+    border-radius:20px;
+    overflow:hidden;
+  }
+  @media(max-width:800px){.panel-wrap{grid-template-columns:1fr;}}
+
+  .panel-side{
+    padding:56px 44px;
+    border-right:1px solid var(--line-dark);
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  @media(max-width:800px){.panel-side{border-right:none; border-bottom:1px solid var(--line-dark); padding:40px 32px;}}
+  .panel-side .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:0.72rem; letter-spacing:0.14em; color:var(--gold-300); text-transform:uppercase;}
+  .panel-side h1{font-size:2.1rem; margin:16px 0 14px; line-height:1.15;}
+  .panel-side p{color:rgba(243,239,230,0.68); font-size:0.94rem; max-width:340px;}
+  .arch-mini{
+    margin-top:32px;
+    width:100%; height:150px;
+    border:1px solid rgba(228,199,102,0.35);
+    border-radius:50% 50% 6px 6px / 74% 74% 6px 6px;
+    background:linear-gradient(180deg, rgba(201,162,39,0.16), rgba(201,162,39,0.02));
+  }
+  .side-list{margin-top:28px; display:grid; gap:12px;}
+  .side-list li{list-style:none; display:flex; gap:10px; font-size:0.85rem; color:rgba(243,239,230,0.75);}
+  .side-list li::before{content:"—"; color:var(--gold-500);}
+
+  .panel-form{padding:56px 44px;}
+  @media(max-width:800px){.panel-form{padding:40px 32px;}}
+
+  .tabs{display:flex; gap:6px; margin-bottom:32px; background:rgba(0,0,0,0.2); padding:4px; border-radius:8px; width:fit-content;}
+  .tab{padding:9px 18px; border-radius:6px; font-size:0.84rem; font-weight:600; cursor:pointer; color:rgba(243,239,230,0.55);}
+  .tab.active{background:var(--gold-500); color:var(--teal-950);}
+
+  .field{margin-bottom:20px;}
+  .field label{display:block; font-size:0.78rem; letter-spacing:0.04em; color:rgba(243,239,230,0.7); margin-bottom:8px;}
+  .field input{
+    width:100%; padding:13px 14px;
+    background:rgba(243,239,230,0.06);
+    border:1px solid var(--line-dark);
+    border-radius:6px;
+    color:var(--stone-100);
+    font-size:0.94rem;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .field input::placeholder{color:rgba(243,239,230,0.32);}
+  .field input:focus{border-color:var(--gold-500);}
+
+  .row-between{display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; font-size:0.82rem;}
+  .row-between label{display:flex; align-items:center; gap:8px; color:rgba(243,239,230,0.65);}
+  .row-between a{color:var(--gold-300);}
+  .row-between a:hover{text-decoration:underline;}
+
+  .btn-submit{
+    width:100%; padding:15px; border:none; border-radius:6px;
+    background:var(--gold-500); color:var(--teal-950);
+    font-family:'Inter',sans-serif; font-weight:700; font-size:0.96rem;
+    cursor:pointer; transition:background .15s ease;
+  }
+  .btn-submit:hover{background:var(--gold-300);}
+
+  .form-footnote{
+    margin-top:22px; font-size:0.82rem; color:rgba(243,239,230,0.55); text-align:center;
+  }
+  .form-footnote a{color:var(--gold-300);}
+
+  .notice{
+    margin-top:24px; padding:14px 16px; border-radius:8px;
+    background:rgba(228,199,102,0.08); border:1px solid rgba(228,199,102,0.25);
+    font-size:0.78rem; color:rgba(243,239,230,0.7);
+  }
+
+  footer{padding:24px; text-align:center; font-size:0.78rem; color:rgba(243,239,230,0.4);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="gg1" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse"><stop stop-color="#F0C64E"/><stop offset="1" stop-color="#B8891F"/></linearGradient></defs>
+        <circle cx="24" cy="24" r="23" stroke="url(#gg1)" stroke-width="1.5"/>
+        <path d="M13 27 L24 14 L35 27 L28 27 L28 34 L20 34 L20 27 Z" fill="url(#gg1)"/>
+      </svg>
+      <div class="brand-name">Bilal Travel</div>
+    </div>
+    <a href="index.html" class="back-link">← Back to website</a>
+  </div>
+</header>
+
+<main>
+  <div class="panel-wrap">
+
+    <div class="panel-side">
+      <div>
+        <span class="eyebrow">Agent Panel</span>
+        <h1>Book Umrah &amp; Gulf group tours in minutes.</h1>
+        <p>Sign in with your agency code to view live fares, hold seats, and issue vouchers directly.</p>
+        <div class="arch-mini"></div>
+      </div>
+      <ul class="side-list">
+        <li>Live seat &amp; hotel availability</li>
+        <li>Instant e-vouchers on confirmation</li>
+        <li>Commission tracked per booking</li>
+      </ul>
+    </div>
+
+    <div class="panel-form">
+      <div class="tabs">
+        <div class="tab active" id="tab-login">Sign In</div>
+        <div class="tab" id="tab-register">Register</div>
+      </div>
+
+      <form id="login-form">
+        <div class="field">
+          <label for="agent-id">Agency Code or Email</label>
+          <input type="text" id="agent-id" placeholder="e.g. BT-1042 or you@agency.com" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <div class="row-between">
+          <label><input type="checkbox" style="width:auto;"> Keep me signed in</label>
+          <a href="#">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn-submit">Sign In to Agent Panel</button>
+      </form>
+
+      <form id="register-form" style="display:none;">
+        <div class="field">
+          <label for="agency-name">Agency Name</label>
+          <input type="text" placeholder="Your travel agency name" required>
+        </div>
+        <div class="field">
+          <label for="reg-email">Business Email</label>
+          <input type="email" placeholder="you@agency.com" required>
+        </div>
+        <div class="field">
+          <label for="reg-phone">Phone Number</label>
+          <input type="tel" placeholder="+92 3XX XXXXXXX" required>
+        </div>
+        <div class="field">
+          <label for="reg-password">Create Password</label>
+          <input type="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-submit">Submit for Approval</button>
+      </form>
+
+      <p class="form-footnote">Need an account? <a href="#" id="switch-register">Register as an agent</a></p>
+
+      <div class="notice">
+        Real accounts — passwords are securely handled by Firebase Authentication (Google's login infrastructure), not stored on this website directly.
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>© 2026 Bilal Travel &amp; Tours — Agent Panel</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBiTumzMyZQbAY5MxZnQHlxMUcs9ZDdzyw",
+    authDomain: "bilal-tyravel.firebaseapp.com",
+    projectId: "bilal-tyravel",
+    storageBucket: "bilal-tyravel.firebasestorage.app",
+    messagingSenderId: "900415962060",
+    appId: "1:900415962060:web:b356899e3f745ad7bebb69"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const tabLogin = document.getElementById('tab-login');
+  const tabRegister = document.getElementById('tab-register');
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const switchLink = document.getElementById('switch-register');
+
+  function showLogin(){
+    tabLogin.classList.add('active'); tabRegister.classList.remove('active');
+    loginForm.style.display = 'block'; registerForm.style.display = 'none';
+  }
+  function showRegister(){
+    tabRegister.classList.add('active'); tabLogin.classList.remove('active');
+    registerForm.style.display = 'block'; loginForm.style.display = 'none';
+  }
+  tabLogin.addEventListener('click', showLogin);
+  tabRegister.addEventListener('click', showRegister);
+  switchLink.addEventListener('click', (e) => { e.preventDefault(); showRegister(); });
+
+  function setError(form, message){
+    let box = form.querySelector('.form-error');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'form-error';
+      box.style.cssText = 'background:rgba(220,60,60,0.12);border:1px solid rgba(220,60,60,0.4);color:#ffb4b4;padding:10px 14px;border-radius:6px;font-size:0.82rem;margin-bottom:16px;';
+      form.insertBefore(box, form.firstChild);
+    }
+    box.textContent = message;
+  }
+  function clearError(form){
+    const box = form.querySelector('.form-error');
+    if (box) box.remove();
+  }
+
+  // ---- LOGIN ----
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError(loginForm);
+    const email = document.getElementById('agent-id').value.trim();
+    const password = document.getElementById('password').value;
+    const remember = loginForm.querySelector('input[type="checkbox"]').checked;
+    const btn = loginForm.querySelector('.btn-submit');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    try {
+      await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = 'agent-dashboard.html';
+    } catch (err) {
+      setError(loginForm, humanError(err.code));
+    } finally {
+      btn.disabled = false; btn.textContent = 'Sign In to Agent Panel';
+    }
+  });
+
+  // ---- REGISTER ----
+  registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError(registerForm);
+    const inputs = registerForm.querySelectorAll('input');
+    const agencyName = inputs[0].value.trim();
+    const email = inputs[1].value.trim();
+    const phone = inputs[2].value.trim();
+    const password = inputs[3].value;
+    const btn = registerForm.querySelector('.btn-submit');
+    btn.disabled = true; btn.textContent = 'Creating account…';
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: `${agencyName} | ${phone}` });
+      window.location.href = 'agent-dashboard.html';
+    } catch (err) {
+      setError(registerForm, humanError(err.code));
+    } finally {
+      btn.disabled = false; btn.textContent = 'Submit for Approval';
+    }
+  });
+
+  function humanError(code){
+    const map = {
+      'auth/invalid-email': 'That email address looks invalid.',
+      'auth/user-not-found': 'No account found with that email.',
+      'auth/wrong-password': 'Incorrect password.',
+      'auth/invalid-credential': 'Incorrect email or password.',
+      'auth/email-already-in-use': 'An account with this email already exists — try signing in instead.',
+      'auth/weak-password': 'Password should be at least 6 characters.',
+    };
+    return map[code] || 'Something went wrong. Please try again.';
+  }
+</script>
+
+</body>
+</html>
